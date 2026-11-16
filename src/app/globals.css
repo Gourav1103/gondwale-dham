@@ -1,0 +1,123 @@
+@import "tailwindcss";
+
+/*
+ * Harihaat 2026 theme — light & minimal, aligned with the Gondawale Dham logo.
+ *   Mostly white / ivory (the logo's centre glow), with
+ *   kumkum crimson (श्री symbol) used sparingly as the accent and
+ *   temple gold (outer ring) for fine lines and ornaments.
+ */
+@theme {
+  /* Kumkum crimson — accent: primary buttons, active states, key text */
+  --color-primary: #9b2226;
+  --color-primary-strong: #7d1a1d;
+  --color-primary-bright: #b0282d;
+  --color-primary-soft: #fbefec;
+  /* Temple gold — hairlines, ornaments, focus rings ("saffron" name kept for compatibility) */
+  --color-saffron: #c9a24a;
+  --color-saffron-soft: #f8f0dc;
+  --color-gold: #8a6420; /* dark gold, readable as small text */
+
+  /* Light surfaces */
+  --color-surface: #fcfaf6;
+  --color-card: #ffffff;
+  --color-muted: #f8f5ef;
+  --color-muted-2: #f2ede4;
+  --color-muted-3: #e9e2d6;
+
+  /* Soft brown-charcoal text (rudraksha) */
+  --color-ink: #2b211d;
+  --color-ink-soft: #5f524b;
+  --color-ink-faint: #93857c;
+  --color-line: #f0e9dd;
+  --color-line-strong: #e6dac6;
+
+  --color-danger: #ba1a1a;
+  --color-danger-soft: #ffdad6;
+  --color-success: #2e7d32;
+
+  --font-sans: var(--font-jakarta), var(--font-deva-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-playfair), var(--font-deva-serif), Georgia, serif;
+  --font-hindi: var(--font-deva-serif), var(--font-playfair), serif;
+
+  /* Hairline border + whisper of depth: cards feel light, not floating */
+  --shadow-soft: 0 0 0 1px rgba(201, 162, 74, 0.18), 0 1px 2px rgba(43, 33, 29, 0.04);
+  --shadow-lift: 0 0 0 1px rgba(201, 162, 74, 0.42), 0 10px 28px -14px rgba(43, 33, 29, 0.18);
+
+  --animate-fade-in: fade-in 0.2s ease-out;
+  --animate-pop-in: pop-in 0.22s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+  --animate-slide-up: slide-up 0.25s ease-out;
+
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes pop-in {
+    from { opacity: 0; transform: translateY(8px) scale(0.98); }
+    to { opacity: 1; transform: none; }
+  }
+  @keyframes slide-up {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: none; }
+  }
+}
+
+:root {
+  color-scheme: light;
+}
+
+html {
+  -webkit-tap-highlight-color: transparent;
+  scroll-padding-top: 6rem;
+}
+
+body {
+  background: var(--color-surface);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+}
+
+/* Plain light page with the faintest warm glow at the top */
+.app-bg {
+  background:
+    radial-gradient(70rem 22rem at 50% -8rem, rgba(201, 162, 74, 0.09), transparent 70%),
+    var(--color-surface);
+}
+
+/* Quiet placeholder where a card has no image yet: ivory with tiny gold dots */
+.peeth-pattern {
+  background-color: #fbf7ef;
+  background-image: radial-gradient(circle, rgba(201, 162, 74, 0.28) 1px, transparent 1.5px);
+  background-size: 16px 16px;
+}
+
+/* Small gold ornament line, e.g.  ——— ✦ ——— */
+.ornament {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--color-saffron);
+}
+.ornament::before,
+.ornament::after {
+  content: "";
+  height: 1px;
+  flex: 1;
+  background: linear-gradient(to right, transparent, rgba(201, 162, 74, 0.55), transparent);
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  scrollbar-width: none;
+}
+
+/* Keep long Hindi/English words from breaking layouts */
+.break-anywhere {
+  overflow-wrap: anywhere;
+}
+
+/* Bottom nav needs space on phones with a home indicator */
+.pb-safe {
+  padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+}
