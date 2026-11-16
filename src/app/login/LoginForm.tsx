@@ -48,9 +48,10 @@ export function LoginForm() {
   return (
     <div className="relative w-full max-w-md animate-pop-in rounded-[18px] bg-card px-6 py-8 shadow-lift sm:px-10 sm:py-10">
       <div className="flex flex-col items-center text-center">
-        <span className="mb-4 inline-flex items-center gap-2 rounded-full bg-muted-2 px-3.5 py-1 font-hindi text-[13px] font-semibold text-gold">
-          <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-primary" />
-          श्री राम का धाम — गोंदवले धाम
+        <span className="mb-4 inline-flex items-center gap-2 rounded-full bg-muted-2 px-3.5 py-1.5 font-hindi text-[13px] font-semibold text-gold">
+          <span className="h-1.5 w-1.5 shrink-0 animate-pulse rounded-full bg-primary" />
+          {/* Devanagari glyphs sit high in their line box; nudge down to look centred */}
+          <span className="translate-y-[2px] leading-none">श्री राम का धाम — गोंदवले धाम</span>
         </span>
         <Emblem className="h-32 w-32 sm:h-36 sm:w-36" priority />
         <p className="mt-4 font-hindi text-sm font-semibold text-ink-soft">गोंदवले धाम, इंदौर</p>
