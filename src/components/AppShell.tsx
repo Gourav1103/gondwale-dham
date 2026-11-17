@@ -90,11 +90,11 @@ export function AppShell({ children }: { children: ReactNode }) {
     <div className="flex min-h-dvh flex-col">
       <header className="sticky top-0 z-30 border-b border-line/60 bg-surface/85 backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-6xl items-center gap-3 px-4 sm:px-6">
-          <Link href="/" className="flex min-w-0 items-center gap-2.5">
+          <Link href="/" className="flex shrink-0 items-center gap-2.5">
             <Emblem priority />
-            <span className="min-w-0 leading-tight">
-              <span className="block font-display text-lg font-semibold text-ink">Harihaat 2026</span>
-              <span className="block truncate font-hindi text-xs font-semibold text-ink-faint">गोंदवले धाम, इंदौर</span>
+            <span className="flex min-w-0 flex-col gap-0.5">
+              <span className="block font-display text-lg leading-none font-semibold whitespace-nowrap text-ink">Harihaat 2026</span>
+              <span className="block truncate font-hindi text-xs leading-[1.35] font-semibold text-ink-faint">गोंदवले धाम, इंदौर</span>
             </span>
           </Link>
 
@@ -106,12 +106,14 @@ export function AppShell({ children }: { children: ReactNode }) {
 
           <button
             onClick={() => setProfileOpen(true)}
-            className="ml-auto inline-flex h-10 max-w-[45%] items-center gap-2 rounded-full border border-line-strong/70 bg-card pr-3.5 pl-1.5 text-sm font-semibold text-ink-soft hover:border-primary/50"
+            aria-label={name || "Add your name"}
+            className="ml-auto inline-flex h-10 min-w-0 items-center gap-2 rounded-full border border-line-strong/70 bg-card pr-3.5 pl-1.5 max-[359px]:pr-1.5 text-sm font-semibold text-ink-soft hover:border-primary/50"
           >
             <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-saffron-soft text-gold">
               {name ? name[0].toUpperCase() : <UserRound className="h-4 w-4" />}
             </span>
-            <span className="truncate">{name || "Add your name"}</span>
+            {/* very narrow phones: avatar only, so the logo text never gets squeezed */}
+            <span className="truncate max-[359px]:hidden">{name || "Add your name"}</span>
           </button>
         </div>
       </header>

@@ -90,12 +90,13 @@ export function PeethsListView() {
       <div className="mb-6 space-y-3">
         <SearchInput value={q} onChange={setQ} placeholder="Search by name, place or number (e.g. कामाख्या, असम, 17)…" />
         <div className="flex items-center gap-2">
-          <div className="no-scrollbar flex gap-2 overflow-x-auto">
+          {/* py/-my keep the active chip's ring from being clipped by the scroll box */}
+          <div className="no-scrollbar -my-1 flex min-w-0 gap-1.5 overflow-x-auto py-1 pl-px sm:gap-2">
             {FILTERS.map((f) => (
               <button
                 key={f.id}
                 onClick={() => setFilter(f.id)}
-                className={`h-9 shrink-0 rounded-full px-4 text-sm font-semibold transition ${
+                className={`h-9 shrink-0 rounded-full px-3 text-[13px] font-semibold transition sm:px-4 sm:text-sm ${
                   filter === f.id ? "bg-primary-soft text-primary ring-1 ring-primary/25" : "border border-line-strong/70 bg-card text-ink-soft hover:border-saffron"
                 }`}
               >
