@@ -1,6 +1,12 @@
 // Shared data shapes used by both the API (server) and the UI (client).
 
-export type ImageItem = {
+/** Set only on the client while a change is still waiting to reach the server. */
+export type SyncFlags = {
+  pending?: boolean; // saved on this device, not yet on the server
+  failed?: boolean; // the server rejected the change (see the sync sheet)
+};
+
+export type ImageItem = SyncFlags & {
   id: string;
   url: string; // public URL (GitHub raw URL in production)
   path: string; // path inside the storage repo — used for deleting
@@ -10,7 +16,7 @@ export type ImageItem = {
   createdAt: string;
 };
 
-export type LinkItem = {
+export type LinkItem = SyncFlags & {
   id: string;
   url: string;
   title?: string;
@@ -18,7 +24,7 @@ export type LinkItem = {
   createdAt: string;
 };
 
-export type NoteItem = {
+export type NoteItem = SyncFlags & {
   id: string;
   text: string;
   addedBy?: string;
@@ -26,7 +32,7 @@ export type NoteItem = {
   updatedAt: string;
 };
 
-export type Idea = {
+export type Idea = SyncFlags & {
   id: string;
   title: string;
   description: string;
@@ -37,7 +43,7 @@ export type Idea = {
   updatedAt: string;
 };
 
-export type Peeth = {
+export type Peeth = SyncFlags & {
   id: string;
   number: number;
   name: string;
