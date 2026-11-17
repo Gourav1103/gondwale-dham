@@ -13,6 +13,7 @@ import { ErrorState, Skeleton, timeAgo } from "@/components/ui/Misc";
 import { useFeedback } from "@/components/ui/Toast";
 import { ImageGrid } from "@/components/images/ImageGrid";
 import { onlyImages } from "@/lib/client/images";
+import { openSyncSheet } from "@/components/SyncStatus";
 import { getUserName } from "@/lib/client/user";
 import { LinkCard } from "@/components/links/LinkCard";
 import { LinkForm } from "@/components/links/LinkForm";
@@ -194,6 +195,7 @@ function GallerySection({ peeth }: { peeth: Peeth }) {
       <ImageGrid
         images={peeth.images}
         onAddFiles={(files) => void add(files)}
+        onFailedClick={openSyncSheet}
         emptyHint="Select one or many photos — they are saved for the whole team"
         onDelete={async (img) => {
           const ok = await confirm({ title: "Delete this photo?", message: "It will be removed for everyone.", confirmLabel: "Delete photo", danger: true });

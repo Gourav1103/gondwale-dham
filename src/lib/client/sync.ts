@@ -227,6 +227,7 @@ let started = false;
 export function startSync(): () => void {
   if (started || typeof window === "undefined") return () => {};
   started = true;
+  authPaused = false; // mounted again (e.g. after logging in) → try again; a new 401 pauses again
   const wake = () => {
     offline = false;
     authPaused = false; // a 401 again will pause it again

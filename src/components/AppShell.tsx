@@ -7,6 +7,8 @@ import { Suspense, useState, type ReactNode } from "react";
 import { Home, Lightbulb, LogOut, Flower2, UserRound } from "lucide-react";
 import { useUserName, setUserName } from "@/lib/client/user";
 import { clearAllCache } from "@/lib/client/cache";
+import { getQueue } from "@/lib/client/outbox";
+import { SyncStatus } from "./SyncStatus";
 import { Modal } from "./ui/Modal";
 import { Button } from "./ui/Button";
 import { Input, Label } from "./ui/Field";
@@ -104,10 +106,12 @@ export function AppShell({ children }: { children: ReactNode }) {
             </Suspense>
           </nav>
 
+          <div className="ml-auto flex min-w-0 items-center gap-2">
+          <SyncStatus />
           <button
             onClick={() => setProfileOpen(true)}
             aria-label={name || "Add your name"}
-            className="ml-auto inline-flex h-10 min-w-0 items-center gap-2 rounded-full border border-line-strong/70 bg-card pr-3.5 pl-1.5 max-[359px]:pr-1.5 text-sm font-semibold text-ink-soft hover:border-primary/50"
+            className="inline-flex h-10 min-w-0 items-center gap-2 rounded-full border border-line-strong/70 bg-card pr-3.5 pl-1.5 max-[359px]:pr-1.5 text-sm font-semibold text-ink-soft hover:border-primary/50"
           >
             <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-saffron-soft text-gold">
               {name ? name[0].toUpperCase() : <UserRound className="h-4 w-4" />}
@@ -115,6 +119,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             {/* very narrow phones: avatar only, so the logo text never gets squeezed */}
             <span className="truncate max-[359px]:hidden">{name || "Add your name"}</span>
           </button>
+          </div>
         </div>
       </header>
 
@@ -141,7 +146,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 function ProfileDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
   const current = useUserName();
   const router = useRouter();
-  const { toast } = useFeedback();
+  const { toast, confirm } = useFeedback();
   const [draft, setDraft] = useState<string | null>(null);
   const [leaving, setLeaving] = useState(false);
   const value = draft ?? current;
@@ -158,6 +163,17 @@ function ProfileDialog({ open, onClose }: { open: boolean; onClose: () => void }
   };
 
   const logout = async () => {
+    // Changes waiting on this device stay there (they are sent after the next login).
+    const waiting = getQueue().length;
+    if (
+      waiting &&
+      !(await confirm({
+        title: `${waiting} change${waiting > 1 ? "s are" : " is"} not saved yet`,
+        message: "Log out anyway? They will stay on this device and be saved after you log in again.",
+        confirmLabel: "Log out",
+      }))
+    )
+      return;
     setLeaving(true);
     await fetch("/api/auth/logout", { method: "POST" }).catch(() => {});
     await clearAllCache();

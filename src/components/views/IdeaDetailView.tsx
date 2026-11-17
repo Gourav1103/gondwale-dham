@@ -3,6 +3,7 @@
 import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, Calendar, Camera, Link2, Pencil, Trash2, UserRound } from "lucide-react";
 import { deleteIdea, useIdea } from "@/lib/client/data";
+import { openSyncSheet } from "@/components/SyncStatus";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { ErrorState, Skeleton, timeAgo } from "@/components/ui/Misc";
 import { useFeedback } from "@/components/ui/Toast";
@@ -95,7 +96,7 @@ export function IdeaDetailView() {
           <Camera className="h-5 w-5 text-primary" /> Photos <span className="text-base font-normal text-ink-faint">({idea.images.length})</span>
         </h2>
         {idea.images.length ? (
-          <ImageGrid images={idea.images} />
+          <ImageGrid images={idea.images} onFailedClick={openSyncSheet} />
         ) : (
           <p className="text-sm text-ink-faint">
             No photos yet.{" "}
