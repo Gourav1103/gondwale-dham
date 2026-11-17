@@ -41,6 +41,17 @@ export async function uploadImage(file: File, folder: string, addedBy?: string):
   return apiFetch<ImageItem>("/api/upload", { method: "POST", body: form });
 }
 
+// Same list and limit as /api/upload, so a bad file is reported right away instead of failing later.
+const ALLOWED = ["image/jpeg", "image/png", "image/webp", "image/gif", "image/avif", "image/heic", "image/heif"];
+const MAX_BYTES = 15 * 1024 * 1024;
+
+/** Returns an error message, or null when the file can be uploaded. */
+export function validateImage(file: File): string | null {
+  if (!ALLOWED.includes(file.type)) return `"${file.name}" is not a supported image (use JPG, PNG, WEBP or GIF).`;
+  if (file.size > MAX_BYTES) return `"${file.name}" is too large (max 15 MB).`;
+  return null;
+}
+
 export function onlyImages(files: FileList | File[] | null | undefined) {
   return Array.from(files ?? []).filter((f) => f.type.startsWith("image/") || /\.(heic|heif)$/i.test(f.name));
 }
