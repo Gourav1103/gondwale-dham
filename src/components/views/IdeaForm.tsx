@@ -1,16 +1,16 @@
 "use client";
 
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Check, Link2, Camera, Type } from "lucide-react";
 import type { Idea, ImageItem, LinkItem } from "@/lib/types";
-import { createIdea, updateIdea } from "@/lib/client/data";
+import { createIdea, updateIdea, type NewPhoto } from "@/lib/client/data";
+import { onlyImages } from "@/lib/client/images";
 import { useUserName } from "@/lib/client/user";
 import { Button } from "@/components/ui/Button";
 import { FieldError, Input, Label, Textarea } from "@/components/ui/Field";
 import { useFeedback } from "@/components/ui/Toast";
 import { ImageGrid } from "@/components/images/ImageGrid";
-import { useUploadQueue } from "@/components/images/useUploadQueue";
 import { LinkCard } from "@/components/links/LinkCard";
 import { LinkForm } from "@/components/links/LinkForm";
 
@@ -28,10 +28,25 @@ export function IdeaForm({ idea }: { idea?: Idea }) {
   const [saving, setSaving] = useState(false);
   const [dirty, setDirty] = useState(false);
 
-  const uploads = useUploadQueue("ideas", (img) => {
-    setImages((list) => [...list, img]);
+  // Photos picked here stay on the device until Save; then they are queued and uploaded in the background.
+  const photos = useRef(new Map<string, NewPhoto & { preview: string }>());
+  useEffect(() => {
+    const picked = photos.current;
+    return () => picked.forEach((p) => URL.revokeObjectURL(p.preview));
+  }, []);
+
+  const addPhotos = (files: FileList | File[]) => {
+    const list = onlyImages(files);
+    if (!list.length) return toast("Please choose image files (JPG, PNG, WEBP).", "error");
+    const added: ImageItem[] = list.map((file) => {
+      const id = crypto.randomUUID();
+      const preview = URL.createObjectURL(file);
+      photos.current.set(id, { id, file, preview });
+      return { id, url: preview, path: "", name: file.name, addedBy: userName || undefined, createdAt: new Date().toISOString(), pending: true };
+    });
+    setImages((all) => [...all, ...added]);
     setDirty(true);
-  });
+  };
 
   // Warn before closing the tab with unsaved work.
   useEffect(() => {
@@ -50,15 +65,19 @@ export function IdeaForm({ idea }: { idea?: Idea }) {
       document.getElementById("idea-title")?.focus();
       return;
     }
-    if (uploads.busy) {
-      toast("Please wait — photos are still uploading.", "info");
-      return;
-    }
     setError("");
     setSaving(true);
     try {
-      const input = { title, description, links, images, addedBy: idea ? idea.addedBy : userName || undefined };
-      const saved = idea ? await updateIdea(idea.id, input) : await createIdea(input);
+      // New photos go as placeholders (no URL yet); the outbox shows them from the saved copy.
+      const newPhotos = images.filter((i) => photos.current.has(i.id)).map((i) => photos.current.get(i.id)!);
+      const input = {
+        title,
+        description,
+        links,
+        images: images.map((i) => (photos.current.has(i.id) ? { ...i, url: "" } : i)),
+        addedBy: idea ? idea.addedBy : userName || undefined,
+      };
+      const saved = idea ? await updateIdea(idea, input, newPhotos) : await createIdea(input, newPhotos);
       toast(idea ? "Changes saved" : "Idea added. Thank you! 🙏");
       router.push(`/ideas/${saved.id}`);
     } catch (err) {
@@ -150,12 +169,14 @@ export function IdeaForm({ idea }: { idea?: Idea }) {
       <Section icon={<Camera className="h-5 w-5" />} title="Photos" count={images.length} hint="You can select many at once">
         <ImageGrid
           images={images}
-          queue={uploads.queue}
-          onAddFiles={uploads.add}
-          onRetry={uploads.retry}
-          onDismiss={uploads.dismiss}
+          onAddFiles={addPhotos}
           onDelete={(img) => {
             setImages((all) => all.filter((x) => x.id !== img.id));
+            const picked = photos.current.get(img.id);
+            if (picked) {
+              URL.revokeObjectURL(picked.preview);
+              photos.current.delete(img.id);
+            }
             touch();
           }}
           compact
@@ -171,8 +192,8 @@ export function IdeaForm({ idea }: { idea?: Idea }) {
           <Button variant="secondary" onClick={cancel} disabled={saving}>
             Cancel
           </Button>
-          <Button type="submit" loading={saving} disabled={uploads.busy} icon={<Check className="h-4 w-4" />} className="min-w-36">
-            {uploads.busy ? "Uploading photos…" : idea ? "Save changes" : "Save idea"}
+          <Button type="submit" loading={saving} icon={<Check className="h-4 w-4" />} className="min-w-36">
+            {idea ? "Save changes" : "Save idea"}
           </Button>
         </div>
       </div>

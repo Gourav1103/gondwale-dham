@@ -1,31 +1,28 @@
 "use client";
 
 import { useRef, useState, type DragEvent } from "react";
-import { AlertCircle, ImagePlus, Loader2, RotateCw, Trash2, X } from "lucide-react";
+import { AlertCircle, ImagePlus, Loader2, Trash2 } from "lucide-react";
 import type { ImageItem } from "@/lib/types";
-import type { QueueItem } from "./useUploadQueue";
 import { Lightbox } from "./Lightbox";
 
 /**
  * Image gallery with an "Add photos" tile (click or drag & drop),
- * upload progress tiles, a delete button on each image and a full-screen viewer.
+ * a delete button on each image and a full-screen viewer.
+ * Photos still saved only on this device show "Saving…"; ones the server refused show "Not saved".
  */
 export function ImageGrid({
   images,
-  queue = [],
   onAddFiles,
   onDelete,
-  onRetry,
-  onDismiss,
+  onFailedClick,
   emptyHint = "Add photos from your phone or computer",
   compact,
 }: {
   images: ImageItem[];
-  queue?: QueueItem[];
   onAddFiles?: (files: FileList | File[]) => void;
   onDelete?: (image: ImageItem) => Promise<void> | void;
-  onRetry?: (key: string) => void;
-  onDismiss?: (key: string) => void;
+  /** Tapping a "Not saved" photo (opens the sync details). */
+  onFailedClick?: () => void;
   emptyHint?: string;
   compact?: boolean;
 }) {
@@ -54,7 +51,7 @@ export function ImageGrid({
     ? "grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-5"
     : "grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4";
 
-  const isEmpty = images.length === 0 && queue.length === 0;
+  const isEmpty = images.length === 0;
 
   return (
     <div
@@ -105,9 +102,22 @@ export function ImageGrid({
                   src={img.url}
                   alt={img.name || "Reference image"}
                   loading="lazy"
-                  className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                  className={`h-full w-full object-cover transition duration-500 group-hover:scale-105 ${img.pending ? "opacity-60" : ""}`}
                 />
               </button>
+              {img.failed ? (
+                <button
+                  type="button"
+                  onClick={onFailedClick}
+                  className="absolute inset-x-2 bottom-2 inline-flex items-center justify-center gap-1 rounded-full bg-card/95 px-2 py-1 text-[11px] font-bold text-danger shadow"
+                >
+                  <AlertCircle className="h-3.5 w-3.5" /> Not saved
+                </button>
+              ) : img.pending ? (
+                <span className="pointer-events-none absolute inset-x-2 bottom-2 inline-flex items-center justify-center gap-1 rounded-full bg-card/90 px-2 py-1 text-[11px] font-bold text-ink-soft">
+                  <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" /> Saving…
+                </span>
+              ) : null}
               {onDelete && (
                 <button
                   type="button"
@@ -119,36 +129,6 @@ export function ImageGrid({
                   {busyId === img.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
                 </button>
               )}
-            </div>
-          ))}
-
-          {queue.map((q) => (
-            <div key={q.key} className="relative aspect-square overflow-hidden rounded-2xl bg-muted-2">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={q.preview} alt="" className="h-full w-full object-cover opacity-50" />
-              <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 p-2 text-center">
-                {q.status === "error" ? (
-                  <>
-                    <AlertCircle className="h-6 w-6 text-danger" />
-                    <span className="line-clamp-2 text-[11px] font-semibold text-danger">{q.error}</span>
-                    <div className="flex gap-1">
-                      <button type="button" onClick={() => onRetry?.(q.key)} className="grid h-8 w-8 place-items-center rounded-full bg-card shadow" aria-label="Retry">
-                        <RotateCw className="h-4 w-4" />
-                      </button>
-                      <button type="button" onClick={() => onDismiss?.(q.key)} className="grid h-8 w-8 place-items-center rounded-full bg-card shadow" aria-label="Remove">
-                        <X className="h-4 w-4" />
-                      </button>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <Loader2 className="h-7 w-7 animate-spin text-primary" />
-                    <span className="rounded-full bg-card/90 px-2 py-0.5 text-[11px] font-bold text-ink-soft">
-                      {q.status === "uploading" ? "Uploading…" : "Waiting…"}
-                    </span>
-                  </>
-                )}
-              </div>
             </div>
           ))}
 

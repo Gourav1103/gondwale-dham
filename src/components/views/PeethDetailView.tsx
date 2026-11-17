@@ -5,14 +5,15 @@ import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import { ArrowLeft, Camera, ChevronLeft, ChevronRight, Link2, MapPin, NotebookPen, Pencil, Plus, Save, Trash2, UserRound } from "lucide-react";
 import type { NoteItem, Peeth } from "@/lib/types";
-import { addPeethImages, addPeethLink, addPeethNote, deletePeethItem, updatePeethItem, usePeeth, usePeeths } from "@/lib/client/data";
+import { addPeethPhotos, addPeethLink, addPeethNote, deletePeethItem, updatePeethItem, usePeeth, usePeeths } from "@/lib/client/data";
 import { useUserName } from "@/lib/client/user";
 import { Button } from "@/components/ui/Button";
 import { Textarea } from "@/components/ui/Field";
 import { ErrorState, Skeleton, timeAgo } from "@/components/ui/Misc";
 import { useFeedback } from "@/components/ui/Toast";
 import { ImageGrid } from "@/components/images/ImageGrid";
-import { useUploadQueue } from "@/components/images/useUploadQueue";
+import { onlyImages } from "@/lib/client/images";
+import { getUserName } from "@/lib/client/user";
 import { LinkCard } from "@/components/links/LinkCard";
 import { LinkForm } from "@/components/links/LinkForm";
 import { PeethInfoDialog } from "./PeethInfoDialog";
@@ -173,14 +174,13 @@ function Section({
 
 function GallerySection({ peeth }: { peeth: Peeth }) {
   const { toast, confirm } = useFeedback();
-  const uploads = useUploadQueue(`peeths/${peeth.id}`, async (img) => {
-    await addPeethImages(peeth.id, [img]);
-  });
-
-  const add = (files: FileList | File[]) => {
-    const n = uploads.add(files);
-    if (n) toast(`Uploading ${n} photo${n > 1 ? "s" : ""}…`, "info");
-    else toast("Please choose image files (JPG, PNG, WEBP).", "error");
+  const add = async (files: FileList | File[]) => {
+    const list = onlyImages(files);
+    if (!list.length) return toast("Please choose image files (JPG, PNG, WEBP).", "error");
+    // Photos appear at once (saved on this device) and upload in the background.
+    const { added, errors } = await addPeethPhotos(peeth, list, getUserName() || undefined);
+    if (errors.length) toast(errors[0], "error");
+    if (added) toast(`Saving ${added} photo${added > 1 ? "s" : ""}…`, "info");
   };
 
   return (
@@ -193,10 +193,7 @@ function GallerySection({ peeth }: { peeth: Peeth }) {
     >
       <ImageGrid
         images={peeth.images}
-        queue={uploads.queue}
-        onAddFiles={add}
-        onRetry={uploads.retry}
-        onDismiss={uploads.dismiss}
+        onAddFiles={(files) => void add(files)}
         emptyHint="Select one or many photos — they are saved for the whole team"
         onDelete={async (img) => {
           const ok = await confirm({ title: "Delete this photo?", message: "It will be removed for everyone.", confirmLabel: "Delete photo", danger: true });
