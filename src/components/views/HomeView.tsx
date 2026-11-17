@@ -46,7 +46,7 @@ export function HomeView() {
           </div>
           <p className="mt-4 text-[15px] leading-relaxed text-ink-soft">{SEED_DESCRIPTION}</p>
           <p className="mt-2 text-sm text-ink-faint">
-            <span className="font-hindi">{name ? `श्री राम, ${name} 🙏` : "श्री राम 🙏"}</span> · Harihaat 2026 decoration planning
+            <span className="font-hindi">{name ? `श्री राम, ${name} 🙏` : "श्री राम 🙏"}</span> · <span className="font-hindi">हरिहाट</span> 2026 decoration planning
           </p>
           <div className="mt-7 flex flex-wrap gap-2.5">
             <ButtonLink href="/ideas/new" icon={<Plus className="h-4 w-4" />}>

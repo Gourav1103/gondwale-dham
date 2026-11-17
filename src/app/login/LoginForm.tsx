@@ -55,8 +55,8 @@ export function LoginForm() {
         </span>
         <Emblem className="h-32 w-32 sm:h-36 sm:w-36" priority />
         <p className="mt-4 font-hindi text-sm font-semibold text-ink-soft">गोंदवले धाम, इंदौर</p>
-        <h1 className="mt-2 font-display text-3xl leading-tight font-semibold">
-          Harihaat 2026
+        <h1 className="mt-2 font-hindi text-3xl leading-tight font-semibold">
+          हरिहाट 2026
           <span className="mt-1 block font-hindi text-2xl font-medium text-primary">५१ शक्तिपीठ सजावट</span>
         </h1>
         <p className="mt-3 max-w-xs text-sm leading-relaxed text-ink-soft">

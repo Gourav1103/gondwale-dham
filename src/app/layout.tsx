@@ -9,8 +9,8 @@ const devaSans = Noto_Sans_Devanagari({ variable: "--font-deva-sans", subsets: [
 const devaSerif = Noto_Serif_Devanagari({ variable: "--font-deva-serif", subsets: ["devanagari"] });
 
 export const metadata: Metadata = {
-  title: { default: "Harihaat 2026 · Decoration Planning", template: "%s · Harihaat 2026" },
-  description: "Decoration ideas and 51 Shakti Peeth planning for Harihaat 2026, गोंदवले धाम, इंदौर.",
+  title: { default: "हरिहाट 2026 · Decoration Planning", template: "%s · हरिहाट 2026" },
+  description: "Decoration ideas and 51 Shakti Peeth planning for हरिहाट 2026, गोंदवले धाम, इंदौर.",
   robots: { index: false, follow: false },
 };
 

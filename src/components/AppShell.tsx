@@ -95,7 +95,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <Link href="/" className="flex shrink-0 items-center gap-2.5">
             <Emblem priority />
             <span className="flex min-w-0 flex-col gap-0.5">
-              <span className="block font-display text-lg leading-none font-semibold whitespace-nowrap text-ink">Harihaat 2026</span>
+              <span className="block font-hindi text-lg leading-tight font-semibold whitespace-nowrap text-ink">हरिहाट 2026</span>
               <span className="block truncate font-hindi text-xs leading-[1.35] font-semibold text-ink-faint">गोंदवले धाम, इंदौर</span>
             </span>
           </Link>
@@ -126,7 +126,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <main className="mx-auto w-full max-w-6xl flex-1 px-4 pt-6 pb-28 sm:px-6 sm:pt-8 md:pb-16">{children}</main>
 
       <footer className="hidden border-t border-line/60 py-6 text-center text-xs text-ink-faint md:block">
-        Harihaat 2026 · <span className="font-hindi">गोंदवले धाम, इंदौर</span> · माँ सती के 51 शक्तिपीठ
+        <span className="font-hindi">हरिहाट</span> 2026 · <span className="font-hindi">गोंदवले धाम, इंदौर</span> · माँ सती के 51 शक्तिपीठ
       </footer>
 
       {/* Bottom navigation for phones */}

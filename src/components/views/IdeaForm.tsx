@@ -150,7 +150,8 @@ export function IdeaForm({ idea }: { idea?: Idea }) {
                 key={l.id}
                 link={l}
                 onEdit={() => setEditingLink(l.id)}
-                onDelete={() => {
+                onDelete={async () => {
+                  if (!(await confirm({ title: "Delete this link?", message: l.title || l.url, confirmLabel: "Delete link", danger: true }))) return;
                   setLinks((all) => all.filter((x) => x.id !== l.id));
                   touch();
                 }}
@@ -170,7 +171,8 @@ export function IdeaForm({ idea }: { idea?: Idea }) {
         <ImageGrid
           images={images}
           onAddFiles={addPhotos}
-          onDelete={(img) => {
+          onDelete={async (img) => {
+            if (!(await confirm({ title: "Remove this photo?", message: "It will be removed from this idea when you save.", confirmLabel: "Remove photo", danger: true }))) return;
             setImages((all) => all.filter((x) => x.id !== img.id));
             const picked = photos.current.get(img.id);
             if (picked) {
