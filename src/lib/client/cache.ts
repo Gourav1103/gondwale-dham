@@ -10,11 +10,10 @@
 
 import { useCallback, useEffect, useSyncExternalStore } from "react";
 import { apiFetch } from "./api";
+import { STORES, tx } from "./idb";
 
 type Entry<T = unknown> = { data: T; ts: number };
 
-const DB_NAME = "harihaat-cache";
-const STORE = "kv";
 const CACHE_VERSION = "v1";
 
 const mem = new Map<string, Entry>();
@@ -23,41 +22,8 @@ const inflight = new Map<string, Promise<unknown>>();
 const errors = new Map<string, string>();
 const hydrated = new Set<string>();
 
-// ---------------- IndexedDB (falls back silently if unavailable) ----------------
-
-let dbPromise: Promise<IDBDatabase | null> | null = null;
-
-function openDb(): Promise<IDBDatabase | null> {
-  if (typeof indexedDB === "undefined") return Promise.resolve(null);
-  if (!dbPromise) {
-    dbPromise = new Promise((resolve) => {
-      try {
-        const req = indexedDB.open(DB_NAME, 1);
-        req.onupgradeneeded = () => req.result.createObjectStore(STORE);
-        req.onsuccess = () => resolve(req.result);
-        req.onerror = () => resolve(null);
-        req.onblocked = () => resolve(null);
-      } catch {
-        resolve(null);
-      }
-    });
-  }
-  return dbPromise;
-}
-
-async function idb<T>(mode: IDBTransactionMode, run: (s: IDBObjectStore) => IDBRequest): Promise<T | undefined> {
-  const db = await openDb();
-  if (!db) return undefined;
-  return new Promise((resolve) => {
-    try {
-      const req = run(db.transaction(STORE, mode).objectStore(STORE));
-      req.onsuccess = () => resolve(req.result as T);
-      req.onerror = () => resolve(undefined);
-    } catch {
-      resolve(undefined);
-    }
-  });
-}
+// IndexedDB "kv" store (falls back silently if unavailable) — see idb.ts.
+const idb = <T,>(mode: IDBTransactionMode, run: (s: IDBObjectStore) => IDBRequest) => tx<T>(STORES.kv, mode, run);
 
 const fullKey = (key: string) => `${CACHE_VERSION}:${key}`;
 
