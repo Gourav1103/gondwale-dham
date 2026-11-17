@@ -81,6 +81,18 @@ export async function saveFile(folder: string, fileName: string, bytes: Buffer):
         sha: json.content.sha,
       };
     }
+    // 422 = the file is already there: an earlier try of this same upload got through,
+    // but its answer never reached the device. Return that file instead of failing.
+    if (res.status === 422) {
+      const info = await gh(`${api}?ref=${encodeURIComponent(cfg.branch)}`, { method: "GET" }, cfg.token);
+      if (info.ok) {
+        return {
+          url: `https://raw.githubusercontent.com/${cfg.owner}/${cfg.repo}/${cfg.branch}/${encodeURI(filePath)}`,
+          path: filePath,
+          sha: ((await info.json()) as { sha: string }).sha,
+        };
+      }
+    }
     if (res.status === 409 && attempt < 3) {
       await sleep(400 * (attempt + 1) + Math.random() * 300);
       continue;

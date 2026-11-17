@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { api, fail, optionalName } from "@/lib/server/http";
+import { api, clientUuid, fail, optionalName } from "@/lib/server/http";
 import { saveFile } from "@/lib/server/storage";
 import type { ImageItem } from "@/lib/types";
 
@@ -17,7 +17,8 @@ const EXT: Record<string, string> = {
 /**
  * Uploads ONE image to storage and returns its details.
  * The UI then attaches the returned image to an idea or a Shakti Peeth.
- * Form fields: file (required), folder ("ideas" | "peeths/<number>"), addedBy (optional)
+ * Form fields: file (required), folder ("ideas" | "peeths/<number>"), addedBy (optional),
+ *              id (optional, made on the device — a retried upload then reuses the same file)
  */
 export const POST = api(async (req) => {
   const form = await req.formData().catch(() => {
@@ -32,7 +33,7 @@ export const POST = api(async (req) => {
   const rawFolder = String(form.get("folder") || "misc").toLowerCase();
   const folder = /^(ideas|peeths\/[a-z0-9-]{1,40}|misc)$/.test(rawFolder) ? rawFolder : "misc";
 
-  const id = crypto.randomUUID();
+  const id = clientUuid(form.get("id")) ?? crypto.randomUUID();
   const stored = await saveFile(folder, `${id}.${ext}`, Buffer.from(await file.arrayBuffer()));
 
   const image: ImageItem = {

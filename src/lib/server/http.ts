@@ -2,6 +2,7 @@ import "server-only";
 import { NextResponse, type NextRequest } from "next/server";
 import { AUTH_COOKIE, verifyToken } from "./auth";
 import { isOurPath } from "./storage";
+import { ObjectId } from "mongodb";
 import type { ImageItem, LinkItem } from "@/lib/types";
 
 export class HttpError extends Error {
@@ -76,6 +77,18 @@ export function cleanUrl(value: unknown) {
 }
 
 const newId = () => crypto.randomUUID();
+
+/** Id made on the device (so a retried create returns the same record instead of a duplicate). */
+export function clientObjectId(raw: unknown): ObjectId | null {
+  return typeof raw === "string" && /^[0-9a-f]{24}$/.test(raw) ? new ObjectId(raw) : null;
+}
+
+export function clientUuid(raw: unknown): string | undefined {
+  return typeof raw === "string" && /^[0-9a-f-]{36}$/i.test(raw) ? raw.toLowerCase() : undefined;
+}
+
+/** Mongo duplicate-key error (same _id inserted twice by a retry). */
+export const isDuplicateKey = (err: unknown) => (err as { code?: number })?.code === 11000;
 
 export function cleanLink(raw: unknown): LinkItem {
   const r = (raw ?? {}) as Partial<LinkItem>;
