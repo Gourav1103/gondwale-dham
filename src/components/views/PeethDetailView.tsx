@@ -246,7 +246,8 @@ function LinksSection({ peeth }: { peeth: Peeth }) {
             }}
           />
         )}
-        <div className="grid gap-2.5 lg:grid-cols-2">
+        {/* grid-cols-1 = minmax(0,1fr): lets link cards shrink to the phone width */}
+        <div className="grid grid-cols-1 gap-2.5 lg:grid-cols-2">
           {[...peeth.links].reverse().map((l) =>
             editing === l.id ? (
               <div key={l.id} className="lg:col-span-2">

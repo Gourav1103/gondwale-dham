@@ -112,7 +112,7 @@ export function IdeaDetailView() {
           <Link2 className="h-5 w-5 text-primary" /> Reference links <span className="text-base font-normal text-ink-faint">({idea.links.length})</span>
         </h2>
         {idea.links.length ? (
-          <div className="grid gap-2.5 lg:grid-cols-2">
+          <div className="grid grid-cols-1 gap-2.5 lg:grid-cols-2">
             {idea.links.map((l) => (
               <LinkCard key={l.id} link={l} />
             ))}

@@ -33,12 +33,12 @@ export function LinkCard({
   const title = link.title || (yt ? "YouTube video" : hostOf(link.url));
 
   return (
-    <div className="group flex items-stretch gap-3 rounded-2xl border border-line/80 bg-card p-2.5 transition hover:border-line-strong hover:shadow-soft">
+    <div className="group flex w-full min-w-0 items-stretch gap-2.5 rounded-2xl sm:gap-3 border border-line/80 bg-card p-2.5 transition hover:border-line-strong hover:shadow-soft">
       {yt ? (
         <button
           type="button"
           onClick={() => setPlaying(true)}
-          className="relative h-[72px] w-[112px] shrink-0 overflow-hidden rounded-xl bg-ink"
+          className="relative h-16 w-24 shrink-0 overflow-hidden rounded-xl bg-ink sm:h-[72px] sm:w-[112px]"
           aria-label="Play video"
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -52,7 +52,7 @@ export function LinkCard({
           href={link.url}
           target="_blank"
           rel="noreferrer"
-          className={`grid h-[72px] w-[72px] shrink-0 place-items-center rounded-xl ${cls}`}
+          className={`grid h-16 w-16 shrink-0 place-items-center rounded-xl sm:h-[72px] sm:w-[72px] ${cls}`}
           aria-hidden
           tabIndex={-1}
         >
