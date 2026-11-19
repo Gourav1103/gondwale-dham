@@ -139,8 +139,8 @@ function IdeaCard({ idea, onDelete }: { idea: Idea; onDelete: () => void }) {
           {idea.description && <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-ink-soft break-anywhere">{idea.description}</p>}
           <div className="mt-auto flex flex-wrap items-center gap-x-3 gap-y-1 pt-4 text-xs font-semibold text-ink-faint">
             {idea.addedBy && (
-              <span className="inline-flex items-center gap-1">
-                <UserRound className="h-3.5 w-3.5" /> {idea.addedBy}
+              <span className="inline-flex max-w-full min-w-0 items-center gap-1">
+                <UserRound className="h-3.5 w-3.5 shrink-0" /> <span className="truncate">{idea.addedBy}</span>
               </span>
             )}
             <span>{timeAgo(idea.createdAt)}</span>

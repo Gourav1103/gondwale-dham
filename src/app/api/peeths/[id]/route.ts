@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { peethsCollection, serializePeeth, toObjectId, type PeethDoc } from "@/lib/server/db";
-import { api, fail, readJson, text } from "@/lib/server/http";
+import { api, fail, readJson, requireAdmin, text } from "@/lib/server/http";
 import { deleteFiles } from "@/lib/server/storage";
 
 type Ctx = RouteContext<"/api/peeths/[id]">;
@@ -39,7 +39,8 @@ export const PATCH = api<Ctx>(async (req, ctx) => {
   return NextResponse.json(serializePeeth(doc));
 });
 
-export const DELETE = api<Ctx>(async (_req, ctx) => {
+export const DELETE = api<Ctx>(async (req, ctx) => {
+  await requireAdmin(req);
   const doc = await (await peethsCollection()).findOneAndDelete({ _id: await peethId(ctx) });
   if (doc) await deleteFiles(doc.images);
   return NextResponse.json({ ok: true });

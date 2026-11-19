@@ -1,13 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { Trash2 } from "lucide-react";
 import type { Peeth } from "@/lib/types";
-import { createPeeth, deletePeeth, updatePeethInfo } from "@/lib/client/data";
+import { createPeeth, updatePeethInfo } from "@/lib/client/data";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { FieldError, Input, Label, Textarea } from "@/components/ui/Field";
 import { useFeedback } from "@/components/ui/Toast";
+import { PeethDeleteButton } from "./PeethDeleteButton";
 
 /** Add a new Shakti Peeth, or edit the basic information of an existing one. */
 export function PeethInfoDialog({
@@ -45,14 +45,13 @@ function Body({
   onSaved?: (p: Peeth) => void;
   onDeleted?: () => void;
 }) {
-  const { toast, confirm } = useFeedback();
+  const { toast } = useFeedback();
   const [number, setNumber] = useState(String(peeth?.number ?? nextNumber ?? ""));
   const [name, setName] = useState(peeth?.name ?? "");
   const [place, setPlace] = useState(peeth?.place ?? "");
   const [description, setDescription] = useState(peeth?.description ?? "");
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
-  const [deleting, setDeleting] = useState(false);
 
   const save = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,28 +69,6 @@ function Body({
     } catch (err) {
       setError((err as Error).message);
       setSaving(false);
-    }
-  };
-
-  const remove = async () => {
-    if (!peeth) return;
-    const total = peeth.images.length + peeth.links.length + peeth.notes.length;
-    const ok = await confirm({
-      title: `Delete ${peeth.name}?`,
-      message: `This removes the Shakti Peeth${total ? ` together with its ${peeth.images.length} photos, ${peeth.links.length} links and ${peeth.notes.length} notes` : ""}. This cannot be undone.`,
-      confirmLabel: "Delete permanently",
-      danger: true,
-    });
-    if (!ok) return;
-    setDeleting(true);
-    try {
-      await deletePeeth(peeth.id);
-      toast("Shakti Peeth deleted");
-      onClose();
-      onDeleted?.();
-    } catch (err) {
-      toast((err as Error).message, "error");
-      setDeleting(false);
     }
   };
 
@@ -121,9 +98,14 @@ function Body({
 
       <div className="flex flex-col-reverse gap-2 pt-2 sm:flex-row sm:items-center">
         {peeth && (
-          <Button variant="ghost" onClick={remove} loading={deleting} icon={<Trash2 className="h-4 w-4" />} className="text-danger hover:!bg-danger-soft hover:!text-danger sm:mr-auto">
-            Delete Peeth
-          </Button>
+          <PeethDeleteButton
+            peeth={peeth}
+            className="justify-center sm:mr-auto"
+            onDeleted={() => {
+              onClose();
+              onDeleted?.();
+            }}
+          />
         )}
         <Button variant="secondary" onClick={onClose} className={peeth ? "" : "sm:ml-auto"}>
           Cancel

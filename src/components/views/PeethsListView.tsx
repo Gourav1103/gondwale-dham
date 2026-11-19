@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/Button";
 import { CardGridSkeleton, ErrorState, PageHeader, SearchInput } from "@/components/ui/Misc";
 import type { Peeth } from "@/lib/types";
 import { PeethInfoDialog } from "./PeethInfoDialog";
-import { searchable } from "@/lib/links";
+import { soundKey, soundMatch } from "@/lib/translit";
 
 type Filter = "all" | "empty" | "photos";
 const FILTERS: { id: Filter; label: string }[] = [
@@ -57,17 +57,14 @@ export function PeethsListView() {
   const setFilter = (f: Filter) => router.replace(f === "all" ? "/peeths" : `/peeths?filter=${f}`, { scroll: false });
 
   const shown = useMemo(() => {
-    const term = searchable(q.trim());
+    const term = q.trim();
+    const key = soundKey(term); // "kamakhya" also finds "कामाख्या", and the other way round
     return (data ?? []).filter((p) => {
       if (filter === "empty" && p.images.length > 0) return false;
       if (filter === "photos" && p.images.length === 0) return false;
       if (!term) return true;
-      return (
-        String(p.number) === term ||
-        searchable(p.name).includes(term) ||
-        searchable(p.place).includes(term) ||
-        searchable(p.description).includes(term)
-      );
+      if (/^\d+$/.test(term)) return String(p.number) === term;
+      return soundMatch(p.name, term, key) || soundMatch(p.place, term, key) || soundMatch(p.description, term, ""); // long descriptions: exact text only, sound matches there are mostly noise
     });
   }, [data, q, filter]);
 
@@ -88,7 +85,7 @@ export function PeethsListView() {
       />
 
       <div className="mb-6 space-y-3">
-        <SearchInput value={q} onChange={setQ} placeholder="Search by name, place or number (e.g. कामाख्या, असम, 17)…" />
+        <SearchInput value={q} onChange={setQ} placeholder="Search in Hindi or English (e.g. कामाख्या, kamakhya, 17)…" />
         <div className="flex items-center gap-2">
           {/* py/-my keep the active chip's ring from being clipped by the scroll box */}
           <div className="no-scrollbar -my-1 flex min-w-0 gap-1.5 overflow-x-auto py-1 pl-px sm:gap-2">
@@ -181,14 +178,14 @@ function PeethCard({ p }: { p: Peeth }) {
         </span>
       </div>
       <div className="flex flex-1 flex-col p-5">
-        <h3 className="font-hindi text-xl leading-snug font-semibold break-anywhere group-hover:text-primary">{p.name}</h3>
+        <h3 className="line-clamp-2 font-hindi text-xl leading-snug font-semibold break-anywhere group-hover:text-primary">{p.name}</h3>
         {p.place && (
           <p className="mt-1.5 flex items-start gap-1.5 text-sm text-ink-soft">
             <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-gold" />
-            <span className="line-clamp-2">{p.place}</span>
+            <span className="line-clamp-2 min-w-0 break-anywhere">{p.place}</span>
           </p>
         )}
-        {p.description && <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-ink-faint">{p.description}</p>}
+        {p.description && <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-ink-faint break-anywhere">{p.description}</p>}
         <div className="mt-auto pt-4">
           <Counts p={p} />
         </div>

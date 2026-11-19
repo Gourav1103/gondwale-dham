@@ -5,6 +5,7 @@ import { ArrowLeft, Calendar, Camera, Link2, Pencil, Trash2, UserRound } from "l
 import { deleteIdea, useIdea } from "@/lib/client/data";
 import { openSyncSheet } from "@/components/SyncStatus";
 import { Button, ButtonLink } from "@/components/ui/Button";
+import { ClampText } from "@/components/ui/ClampText";
 import { ErrorState, Skeleton, timeAgo } from "@/components/ui/Misc";
 import { useFeedback } from "@/components/ui/Toast";
 import { ImageGrid } from "@/components/images/ImageGrid";
@@ -63,11 +64,13 @@ export function IdeaDetailView() {
 
       <header className="rounded-[20px] bg-card p-6 shadow-soft sm:p-8">
         <p className="text-xs font-bold tracking-[0.14em] text-gold uppercase">Decoration idea</p>
-        <h1 className="mt-2 font-display text-3xl leading-tight font-semibold break-anywhere sm:text-4xl">{idea.title}</h1>
+        <ClampText as="h1" lines={3} className="mt-2 font-display text-3xl leading-tight font-semibold break-anywhere sm:text-4xl">
+          {idea.title}
+        </ClampText>
         <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1.5 text-sm text-ink-faint">
           {idea.addedBy && (
-            <span className="inline-flex items-center gap-1.5">
-              <UserRound className="h-4 w-4" /> {idea.addedBy}
+            <span className="inline-flex max-w-full min-w-0 items-center gap-1.5">
+              <UserRound className="h-4 w-4 shrink-0" /> <span className="truncate">{idea.addedBy}</span>
             </span>
           )}
           <span className="inline-flex items-center gap-1.5">

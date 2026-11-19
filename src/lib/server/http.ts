@@ -40,6 +40,13 @@ export function api<C>(handler: Handler<C>): Handler<C> {
   };
 }
 
+/** Throws 403 unless the visitor logged in with the admin password. */
+export async function requireAdmin(req: NextRequest) {
+  if ((await verifyToken(req.cookies.get(AUTH_COOKIE)?.value)) !== "admin") {
+    throw fail(403, "Only an admin can delete a Shakti Peeth. Unlock admin with the admin password.");
+  }
+}
+
 export async function readJson<T = Record<string, unknown>>(req: NextRequest): Promise<T> {
   try {
     return (await req.json()) as T;

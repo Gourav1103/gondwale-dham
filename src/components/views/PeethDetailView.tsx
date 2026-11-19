@@ -8,6 +8,7 @@ import type { NoteItem, Peeth } from "@/lib/types";
 import { addPeethPhotos, addPeethLink, addPeethNote, deletePeethItem, updatePeethItem, usePeeth, usePeeths } from "@/lib/client/data";
 import { useUserName } from "@/lib/client/user";
 import { Button } from "@/components/ui/Button";
+import { ClampText } from "@/components/ui/ClampText";
 import { Textarea } from "@/components/ui/Field";
 import { ErrorState, Skeleton, timeAgo } from "@/components/ui/Misc";
 import { useFeedback } from "@/components/ui/Toast";
@@ -18,6 +19,7 @@ import { getUserName } from "@/lib/client/user";
 import { LinkCard } from "@/components/links/LinkCard";
 import { LinkForm } from "@/components/links/LinkForm";
 import { PeethInfoDialog } from "./PeethInfoDialog";
+import { PeethDeleteButton } from "./PeethDeleteButton";
 
 export function PeethDetailView() {
   const { id } = useParams<{ id: string }>();
@@ -85,20 +87,28 @@ function Workspace({ peeth }: { peeth: Peeth }) {
             </span>
             <div className="min-w-0 flex-1">
               <p className="text-xs font-bold tracking-[0.14em] text-gold uppercase">Shakti Peeth #{peeth.number}</p>
-              <h1 className="mt-1 font-hindi text-3xl leading-snug font-semibold break-anywhere sm:text-4xl">{peeth.name}</h1>
+              <ClampText as="h1" lines={3} className="mt-1 font-hindi text-3xl leading-snug font-semibold break-anywhere sm:text-4xl">
+                {peeth.name}
+              </ClampText>
               {peeth.place && (
                 <p className="mt-2 flex items-start gap-1.5 text-[15px] text-ink-soft">
-                  <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-gold" /> {peeth.place}
+                  <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-gold" />
+                  <ClampText as="span" lines={2} className="break-anywhere">{peeth.place}</ClampText>
                 </p>
               )}
             </div>
           </div>
-          {peeth.description && <p className="mt-5 text-[16px] leading-relaxed text-ink break-anywhere">{peeth.description}</p>}
+          {peeth.description && (
+            <ClampText lines={6} className="mt-5 text-[16px] leading-relaxed text-ink break-anywhere">
+              {peeth.description}
+            </ClampText>
+          )}
           <div className="mt-5 flex flex-wrap items-center gap-3">
             <Button variant="secondary" size="sm" icon={<Pencil className="h-4 w-4" />} onClick={() => setEditing(true)}>
               Edit information
             </Button>
-            <span className="text-xs text-ink-faint">Last updated {timeAgo(peeth.updatedAt)}</span>
+            <PeethDeleteButton peeth={peeth} onDeleted={() => router.push("/peeths")} />
+            <span className="w-full text-xs text-ink-faint sm:ml-auto sm:w-auto">Last updated {timeAgo(peeth.updatedAt)}</span>
           </div>
         </div>
       </header>

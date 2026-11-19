@@ -123,8 +123,8 @@ export function HomeView() {
       )}
 
       {/* Recent activity */}
-      <section className="grid gap-6 lg:grid-cols-2">
-        <div>
+      <section className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <div className="min-w-0">
           <div className="mb-3 flex items-center justify-between">
             <h2 className="font-display text-xl font-semibold">Latest ideas</h2>
             <Link href="/ideas" className="text-sm font-semibold text-primary hover:underline">View all</Link>
@@ -152,7 +152,7 @@ export function HomeView() {
           </div>
         </div>
 
-        <div>
+        <div className="min-w-0">
           <div className="mb-3 flex items-center justify-between">
             <h2 className="font-display text-xl font-semibold">Recently updated Peeths</h2>
             <Link href="/peeths" className="text-sm font-semibold text-primary hover:underline">View all</Link>

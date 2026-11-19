@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { AUTH_COOKIE, verifyToken } from "@/lib/server/auth";
+import { AUTH_COOKIE, AUTH_MAX_AGE, ROLE_COOKIE, verifyToken } from "@/lib/server/auth";
 
 // Every page and API call (except the login screen itself) needs the password cookie.
 export async function proxy(request: NextRequest) {
@@ -9,7 +9,14 @@ export async function proxy(request: NextRequest) {
   if (pathname === "/login") {
     return authed ? NextResponse.redirect(new URL("/", request.url)) : NextResponse.next();
   }
-  if (authed) return NextResponse.next();
+  if (authed) {
+    const res = NextResponse.next();
+    // Keep the readable role cookie in step with the signed one (older logins have none).
+    if (request.cookies.get(ROLE_COOKIE)?.value !== authed) {
+      res.cookies.set(ROLE_COOKIE, authed, { sameSite: "lax", secure: process.env.NODE_ENV === "production", path: "/", maxAge: AUTH_MAX_AGE });
+    }
+    return res;
+  }
 
   if (pathname.startsWith("/api/")) {
     return NextResponse.json({ error: "Please enter the app password first." }, { status: 401 });
